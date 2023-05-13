@@ -6,4 +6,4 @@ services:
     ports:
       - 27017:27017
     volumes:
-      - ~/.docker/ecobee-sjlu/mongodb:/data/db
+      - .docker/mongodb:/data/db

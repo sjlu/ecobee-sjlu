@@ -1,0 +1,50 @@
+name: run_report
+
+on:
+  push:
+    branches:
+      - 'main'
+  schedule:
+    - cron: '0 6 * * *'
+
+jobs:
+  run_report:
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Date
+        run: echo DATE=$(date +%s) >> $GITHUB_ENV
+
+      - name: Cache
+        uses: actions/cache@v3
+        with:
+          path: .docker
+          key: docker-cache-${{ env.DATE }}
+          restore-keys: |
+            docker-cache-
+
+      - name: docker-compose up
+        run: docker-compose up -d
+
+      - name: Install Node.js 16.x
+        uses: actions/setup-node@v3
+        with:
+          node-version: '16.x'
+          cache: 'npm'
+
+      - run: npm i
+
+      - run: node sync.js
+        env:
+          ECOBEE_CLIENT_ID: ${{ secrets.ECOBEE_CLIENT_ID }}
+          ECOBEE_REFRESH_TOKEN: ${{ secrets.ECOBEE_REFRESH_TOKEN }}
+
+      - run: node report.js
+
+      - name: docker-compose down
+        if: always()
+        run: docker-compose down
+
