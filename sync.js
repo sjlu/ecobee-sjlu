@@ -5,11 +5,13 @@ const {
   getEcobeeRuntimeReport
 } = require('./lib/ecobee_request')
 const _ = require('lodash')
-const moment = require('moment-timezone')
+const moment = require('moment')
 const { RuntimeRecord } = require('./models')
 const Promise = require('bluebird')
 
 async function main () {
+  await RuntimeRecord.ensureIndexes()
+
   const thermostats = await getEcobeeThermostats()
 
   console.log(thermostats)
@@ -19,11 +21,13 @@ async function main () {
   const endDate = moment().format('YYYY-MM-DD')
   const report = await getEcobeeRuntimeReport(thermostatIds, startDate, endDate)
 
+  console.log(report.length)
+
   await Promise.resolve(report).map((data) => {
     return RuntimeRecord.findOneAndUpdate(
       {
         thermostat_id: data.thermostatId,
-        timestamp: moment(`${data.date} ${data.time}`, 'YYYY-MM-DD hh:mm:ss')
+        timestamp: moment(`${data.date} ${data.time}`, 'YYYY-MM-DD hh:mm:ss').toISOString()
       },
       {
         cooling_duration_seconds: data.compCool1,
@@ -31,6 +35,7 @@ async function main () {
         fan_duration_seconds: data.fan
       },
       {
+        new: true,
         upsert: true
       }
     )

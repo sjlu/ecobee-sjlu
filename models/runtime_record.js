@@ -24,7 +24,7 @@ const RuntimeRecord = mongoose.Schema({
 
 RuntimeRecord.index({
   thermostat_id: 1,
-  timeestamp: 1
+  timestamp: 1
 }, {
   unique: true
 })
