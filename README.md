@@ -2,6 +2,8 @@
 
 Scripts to help determine electricity usage and cost from ecobee runtime reports.
 
+### Install
+
 1. `docker-compose up` to run MongoDB assuming you have Docker installed.
 
 2. `npm i` assuming you have Node.js installed.
