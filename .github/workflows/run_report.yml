@@ -17,7 +17,15 @@ jobs:
 
       - run: echo DATE=$(date +%s) >> $GITHUB_ENV
 
-      - run: sudo apt install mongo-tools
+      - name: Install Mongo Tools
+        shell: bash
+        run : |
+          wget -qO - https://www.mongodb.org/static/pgp/server-6.0.asc |  gpg --dearmor | sudo tee /usr/share/keyrings/mongodb.gpg > /dev/null
+          echo "deb [ arch=amd64 signed-by=/usr/share/keyrings/mongodb.gpg ] https://repo.mongodb.org/apt/ubuntu jammy/mongodb-org/6.0 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-6.0.list
+          sudo apt update
+          sudo apt install mongodb-database-tools
+          mongodump --version
+          mongorestore --version
 
       - name: Cache
         uses: actions/cache@v3
