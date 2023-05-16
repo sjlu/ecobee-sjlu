@@ -15,19 +15,21 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Date
-        run: echo DATE=$(date +%s) >> $GITHUB_ENV
+      - run: echo DATE=$(date +%s) >> $GITHUB_ENV
+
+      - run: apt install mongo-tools
 
       - name: Cache
         uses: actions/cache@v3
         with:
-          path: .docker
-          key: docker-cache-${{ env.DATE }}
+          path: mongodump
+          key: mongodump-${{ env.DATE }}
           restore-keys: |
-            docker-cache-
+            mongodump-
 
-      - name: docker-compose up
-        run: docker-compose up -d
+      - run: docker-compose up -d
+
+      - run: mongorestore
 
       - name: Install Node.js 16.x
         uses: actions/setup-node@v3
@@ -50,6 +52,8 @@ jobs:
           ECOBEE_THERMOSTAT_412859450837: ${{ vars.ECOBEE_THERMOSTAT_412859450837 }}
           VOLTAGE: ${{ vars.VOLTAGE }}
           PRICE_PER_KWH: ${{ vars.PRICE_PER_KWH }}
+
+      - run: mongodump
 
       - name: docker-compose down
         if: always()
