@@ -30,7 +30,7 @@ jobs:
       - name: Cache
         uses: actions/cache@v3
         with:
-          path: mongodump
+          path: dump
           key: mongodump-${{ env.DATE }}
           restore-keys: |
             mongodump-
