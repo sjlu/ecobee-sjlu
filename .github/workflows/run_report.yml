@@ -64,6 +64,7 @@ jobs:
           ECOBEE_THERMOSTAT_412859450837: ${{ vars.ECOBEE_THERMOSTAT_412859450837 }}
           VOLTAGE: ${{ vars.VOLTAGE }}
           PRICE_PER_KWH: ${{ vars.PRICE_PER_KWH }}
+          ZAPIER_WEBHOOK_URL: ${{ secrets.ZAPIER_WEBHOOK_URL }}
 
       - run: mongodump
 

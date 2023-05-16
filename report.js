@@ -4,6 +4,7 @@ const { RuntimeRecord } = require('./models')
 const _ = require('lodash')
 const moment = require('moment')
 const { HVAC_DATA } = require('./hvac_data')
+const { zapierPush } = require('./lib/zapier')
 
 const VOLTAGE = process.env.VOLTAGE || 240
 const PRICE_PER_KWH = process.env.PRICE_PER_KWH || 0.14
@@ -96,11 +97,24 @@ async function main () {
       return { k, v }
     })
     .groupBy((obj) => {
-      return moment(obj.k, 'YYYYMMDD').format('YYYY-MMM')
+      return moment(obj.k, 'YYYYMMDD').format('YYYY-MM')
     })
     .mapValues(objs => _.map(objs, 'v'))
     .mapValues(v => _.sum(v))
+    .map((v, k) => {
+      return {
+        month: k,
+        cost: Math.round(v * 100) / 100
+      }
+    })
+    .orderBy('month', 'desc')
+    .map(obj => {
+      obj.month = moment(obj.month, 'YYYY-MM').format('MMM YYYY')
+      return obj
+    })
     .valueOf()
+
+  await zapierPush(monthlyResults)
 
   console.log(monthlyResults)
 
