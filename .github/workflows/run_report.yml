@@ -37,7 +37,11 @@ jobs:
 
       - run: docker-compose up -d
 
-      - run: mongorestore
+      - name: mongorestore
+        run: |
+          if [ -d dump ]; then
+            mongorestore
+          fi
 
       - name: Install Node.js 16.x
         uses: actions/setup-node@v3
