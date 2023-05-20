@@ -36,7 +36,8 @@ async function main () {
       date: {
         $dateToString: {
           format: '%Y%m%d',
-          date: '$timestamp'
+          date: '$timestamp',
+          timezone: 'America/New_York'
         }
       },
       cooling_duration_seconds: 1,
@@ -92,6 +93,9 @@ async function main () {
     })
     .valueOf()
 
+  const yesterday = moment().subtract(1, 'day').format('YYYYMMDD')
+  const yesterdayResults = results[yesterday]
+
   const monthlyResults = _.chain(results)
     .map((v, k) => {
       return { k, v }
@@ -113,6 +117,11 @@ async function main () {
       return obj
     })
     .valueOf()
+
+  monthlyResults.unshift({
+    month: moment(yesterday, 'YYYYMMDD').format('MMM D YYYY'),
+    cost: Math.round(yesterdayResults * 100) / 100
+  })
 
   await zapierPush(monthlyResults)
 
